@@ -466,7 +466,7 @@ int control_usb_storage_set_lun(Volume* vol, bool enable, const char *lun_file) 
     }
 
     // Write the volume path to the LUN file
-    if ((write(fd, vol_device, strlen(vol_device)) < 0) &&
+    if ((write(fd, vol_device, strlen(vol_device)+1) < 0) &&
        (!enable || !vol->device2 || (write(fd, vol->device2, strlen(vol->device2)) < 0))) {
         LOGW("Unable to write to ums lunfile %s (%s)\n", lun_file, strerror(errno));
         close(fd);
@@ -562,8 +562,8 @@ void show_mount_usb_storage_menu()
 {
     // Build a list of Volume objects; some or all may not be valid
     Volume* volumes[MAX_NUM_USB_VOLUMES] = {
-        volume_for_path("/sdcard"),
-        volume_for_path("/emmc"),
+//        volume_for_path("/sdcard"),
+//        volume_for_path("/emmc"),
         volume_for_path("/external_sd")
     };
 
@@ -1020,7 +1020,8 @@ static void choose_backup_format() {
     };
 
     char* list[] = { "dup (default)",
-        "tar"
+        "tar",
+        NULL
     };
 
     int chosen_item = get_menu_selection(headers, list, 0, 0);
@@ -1180,6 +1181,44 @@ void wipe_battery_stats()
     ui_print("Battery Stats wiped.\n");
 }
 
+static void choose_font() {
+    static char* headers[] = {  "Font",
+                                "",
+                                NULL
+    };
+
+    char* list[] = { "font_7x16",
+        "font_10x18(default)",
+        "roboto_10x18",
+        "roboto_15x24",
+        NULL
+    };
+
+    int chosen_item = get_menu_selection(headers, list, 0, 0);
+    switch (chosen_item) {
+        case 0:
+            write_string_to_file(CWM_RECOVERY_FONT_NAME_FILE, "font_7x16");
+            ui_print("Font set to font_7x16.\n");
+            ui_print("You have to restart recovery for the changes to take effect.\n");
+            break;
+        case 1:
+            write_string_to_file(CWM_RECOVERY_FONT_NAME_FILE, "font_10x18");
+            ui_print("Font set to font_10x18.\n");
+            ui_print("You have to restart recovery for the changes to take effect.\n");
+            break;
+        case 2:
+            write_string_to_file(CWM_RECOVERY_FONT_NAME_FILE, "roboto_10x18");
+            ui_print("Font set to roboto_10x18.\n");
+            ui_print("You have to restart recovery for the changes to take effect.\n");
+            break;
+        case 3:
+            write_string_to_file(CWM_RECOVERY_FONT_NAME_FILE, "roboto_15x24");
+            ui_print("Font set to roboto_15x24.\n");
+            ui_print("You have to restart recovery for the changes to take effect.\n");
+            break;
+    }
+}
+
 static void partition_sdcard(const char* volume) {
     if (!can_partition(volume)) {
         ui_print("Can't partition device: %s\n", volume);
@@ -1263,6 +1302,7 @@ void show_advanced_menu()
                             "key test",
                             "show log",
                             "fix permissions",
+                            "choose font",
                             "partition sdcard",
                             "partition external sdcard",
                             "partition internal sdcard",
@@ -1270,13 +1310,13 @@ void show_advanced_menu()
     };
 
     if (!can_partition("/sdcard")) {
-        list[7] = NULL;
-    }
-    if (!can_partition("/external_sd")) {
         list[8] = NULL;
     }
-    if (!can_partition("/emmc")) {
+    if (!can_partition("/external_sd")) {
         list[9] = NULL;
+    }
+    if (!can_partition("/emmc")) {
+        list[10] = NULL;
     }
 
     for (;;)
@@ -1335,12 +1375,15 @@ void show_advanced_menu()
                 ui_print("Done!\n");
                 break;
             case 7:
-                partition_sdcard("/sdcard");
+                choose_font();
                 break;
             case 8:
-                partition_sdcard("/external_sd");
+                partition_sdcard("/sdcard");
                 break;
             case 9:
+                partition_sdcard("/external_sd");
+                break;
+            case 10:
                 partition_sdcard("/emmc");
                 break;
         }

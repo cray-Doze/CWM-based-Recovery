@@ -69,4 +69,5 @@ void ev_dispatch(void);
 int res_create_surface(const char* name, gr_surface* pSurface);
 void res_free_surface(gr_surface surface);
 
+#define CWM_RECOVERY_FONT_NAME_FILE "/sdcard/clockworkmod/.default_font_name"
 #endif

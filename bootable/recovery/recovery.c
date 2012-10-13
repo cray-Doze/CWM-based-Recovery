@@ -406,6 +406,7 @@ copy_sideloaded_package(const char* original_path) {
 static char**
 prepend_title(char** headers) {
     char* title[] = { EXPAND(RECOVERY_VERSION),
+                      EXPAND(MODIFIED_VERSION),
                       "",
                       NULL };
 
@@ -778,8 +779,12 @@ main(int argc, char **argv) {
         if (strstr(argv[0], "poweroff")){
             return reboot_main(argc, argv);
         }
-        if (strstr(argv[0], "setprop"))
+        if (strstr(argv[0], "setprop")) {
             return setprop_main(argc, argv);
+        }
+        if (strstr(argv[0], "getprop")) {
+            return getprop_main(argc, argv);
+        }
         return busybox_driver(argc, argv);
     }
     __system("/sbin/postrecoveryboot.sh");

@@ -17,6 +17,8 @@ LOCAL_SRC_FILES := \
     firmware.c \
     edifyscripting.c \
     setprop.c \
+    dynarray.c \
+    getprop.c \
     default_recovery_ui.c \
     verifier.c
 
@@ -32,11 +34,14 @@ RECOVERY_NAME := ClockworkMod Recovery
 LOCAL_CFLAGS += -DI_AM_KOUSH
 else
 RECOVERY_NAME := CWM-based Recovery
+MODIFIED_NAME := cray_Doze Mod for Xperia GX/SX
 endif
 
 RECOVERY_VERSION := $(RECOVERY_NAME) v6.0.1.2
+MODIFIED_VERSION := $(MODIFIED_NAME) v0.4
 
 LOCAL_CFLAGS += -DRECOVERY_VERSION="$(RECOVERY_VERSION)"
+LOCAL_CFLAGS += -DMODIFIED_VERSION="$(MODIFIED_VERSION)"
 RECOVERY_API_VERSION := 2
 LOCAL_CFLAGS += -DRECOVERY_API_VERSION=$(RECOVERY_API_VERSION)
 
